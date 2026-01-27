@@ -1,8 +1,9 @@
-fastapi
-uvicorn
-numpy
-scipy
-pytest
-requests
-pydantic
-httpx
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-dotenv==1.0.0
+requests==2.31.0
+numpy==1.24.3
+scipy==1.11.4
+aiohttp==3.9.1
+gunicorn==21.2.0

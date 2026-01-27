@@ -1,10 +1,9 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from '../../config';
 
-// Use environment variable for API base URL
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL 
-  ? `${process.env.EXPO_PUBLIC_API_URL}api`
-  : 'http://localhost:8000/api';
+// Use Config for API base URL
+const API_BASE_URL = Config.apiUrl;
 
 interface Odds {
   home_win: number;
@@ -56,6 +55,7 @@ export interface AnalysisResult {
   key_insights: string[];
   referee_info: RefereeInfo;
   timestamp?: string;
+  id?: string;
 }
 
 const apiClient = axios.create({
@@ -65,6 +65,29 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Interceptor para logging
+apiClient.interceptors.request.use(
+  (config) => {
+    console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('[API] Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+apiClient.interceptors.response.use(
+  (response) => {
+    console.log(`[API] Response ${response.status} from ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    console.error('[API] Response error:', error.message);
+    return Promise.reject(error);
+  }
+);
 
 export const analyzeMatch = async (matchData: MatchData): Promise<AnalysisResult> => {
   try {
@@ -98,6 +121,7 @@ export const saveAnalysisToHistory = async (analysis: AnalysisResult): Promise<v
     const analysisWithTimestamp = {
       ...analysis,
       timestamp: new Date().toISOString(),
+      id: Date.now().toString(),
     };
     
     const existingHistory = await getAnalysisHistory();
@@ -126,12 +150,33 @@ export const getAnalysisHistory = async (): Promise<AnalysisResult[]> => {
   }
 };
 
+export const deleteAnalysisFromHistory = async (id: string): Promise<void> => {
+  try {
+    const history = await getAnalysisHistory();
+    const filtered = history.filter(item => item.id !== id);
+    await AsyncStorage.setItem('analysis_history', JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Error deleting from history:', error);
+    throw new Error('No se pudo eliminar el análisis del historial');
+  }
+};
+
 export const clearHistory = async (): Promise<void> => {
   try {
     await AsyncStorage.removeItem('analysis_history');
   } catch (error) {
     console.error('Error clearing history:', error);
     throw new Error('No se pudo limpiar el historial');
+  }
+};
+
+export const checkBackendHealth = async (): Promise<any> => {
+  try {
+    const response = await apiClient.get('/health');
+    return response.data;
+  } catch (error) {
+    console.error('Backend health check failed:', error);
+    return null;
   }
 };
 

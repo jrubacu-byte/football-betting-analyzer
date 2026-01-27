@@ -1,34 +1,60 @@
 {
   "cli": {
-    "version": ">= 16.28.0",
-    "appVersionSource": "remote"
+    "version": ">= 5.2.0"
   },
   "build": {
-    "base": {
-      "corepack": true,
-      "android": {
-        "credentialsSource": "local",
-        "resourceClass": "large"
-      }
-    },
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "extends": "base"
+      "android": {
+        "gradleCommand": ":app:assembleDebug",
+        "buildType": "apk"
+      },
+      "ios": {
+        "buildConfiguration": "Debug",
+        "simulator": true
+      },
+      "env": {
+        "API_ENV": "development"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "extends": "base",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "API_ENV": "staging"
       }
     },
     "production": {
-      "autoIncrement": true,
-      "extends": "base"
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "API_ENV": "production",
+        "APP_VARIANT": "production"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "tu-email@example.com",
+        "ascAppId": "XXXXXXXXXX",
+        "appleTeamId": "XXXXXXXXXX"
+      }
+    }
   }
 }

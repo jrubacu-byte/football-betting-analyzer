@@ -1,20 +1,95 @@
-**/node_modules
-.next
-.cache
-.build
-*.nfs*
-**/.yarn/
-!**/.yarn/patches
-!**/.yarn/plugins
-!**/.yarn/releases
-!**/.yarn/sdks
-!**/.yarn/versions
-!**/.yarn/cache
-**/.yarn/build-state.yml
-**/.yarn/install-state.gz
-dist
-target
-out
-.deploy
-.logs
-*.tsbuildinfo
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PIPFILE.lock
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Testing
+.pytest_cache/
+.coverage
+.nyc_output/
+coverage/
+*.cover
+.hypothesis/
+
+# Node
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+web-build/
+dist/
+
+# OS
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.mobileprovision
+
+# Google Play service account
+google-play-service-account.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
