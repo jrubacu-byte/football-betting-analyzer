@@ -90,3 +90,6 @@ yarn-error.*
 # Logs
 logs
 *.log
+
+# Ensure only package-lock.json is used
+yarn.lock
