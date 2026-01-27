@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform } from 'react-native';
+import { Platform, Text } from 'react-native';
 import InputScreen from '../screens/InputScreen';
 import AnalysisScreen from '../screens/AnalysisScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -74,7 +74,7 @@ const RootNavigator = () => {
 
 const TabIcon: React.FC<{ icon: string; color: string }> = ({ icon }) => {
   return (
-    <span style={{ fontSize: 24 }}>{icon}</span>
+    <Text style={{ fontSize: 24 }}>{icon}</Text>
   );
 };
 
