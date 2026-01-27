@@ -13,7 +13,7 @@ const ENV = {
     logLevel: 'warn',
   },
   prod: {
-    apiUrl: 'https://tu-proyecto-production.up.railway.app/api',
+    apiUrl: 'https://football-betting-analyzer-production.up.railway.app/api',
     environment: 'production',
     logLevel: 'error',
   },
