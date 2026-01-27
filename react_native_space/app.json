@@ -46,18 +46,6 @@
     ],
     "plugins": [
       "expo-secure-store"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "REEMPLAZA_CON_TU_PROJECT_ID"
-      }
-    },
-    "owner": "tu-username-expo",
-    "updates": {
-      "url": "https://u.expo.dev/REEMPLAZA_CON_TU_PROJECT_ID"
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    }
+    ]
   }
 }
