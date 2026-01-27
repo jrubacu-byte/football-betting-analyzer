@@ -1,0 +1,11 @@
+{
+  "match_name": "Ajax vs Olympiacos",
+  "odds": {
+    "home_win": 2.10,
+    "draw": 3.40,
+    "away_win": 3.50,
+    "over_2_5": 1.85,
+    "btts_yes": 1.70
+  },
+  "bankroll": 1000
+}
