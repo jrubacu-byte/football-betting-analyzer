@@ -1,3 +1,4 @@
+// Entry point for Expo application - v1.0.1
 import { registerRootComponent } from 'expo';
 
 import App from './App';
