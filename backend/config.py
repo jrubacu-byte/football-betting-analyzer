@@ -11,7 +11,7 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 # LLM Configuration
 LLM_API_KEY = os.getenv("LLM_API_KEY")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4")
+LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", 0.7))
 
 # Betting Configuration

@@ -2,17 +2,21 @@ import requests
 import json
 import logging
 from typing import Dict, Any
+from backend.config import LLM_MODEL, LLM_TEMPERATURE
 
 logger = logging.getLogger(__name__)
 
 class LLMAnalysisClient:
-    def __init__(self, api_key: str, base_url: str = "https://routellm.abacus.ai/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://routellm.abacus.ai/v1", model: str = None):
         self.api_key = api_key
         self.base_url = base_url
+        # Use provided model, or config model, default to gpt-4o-mini (valid for RouteLLM)
+        self.model = model or LLM_MODEL or "gpt-4o-mini"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
+        logger.info(f"LLMAnalysisClient initialized with model: {self.model}")
 
     def analyze_match(self, match_name: str, user_odds: Dict[str, float]) -> Dict[str, Any]:
         """
@@ -23,17 +27,18 @@ class LLMAnalysisClient:
         prompt = self._build_analysis_prompt(match_name, user_odds)
         
         payload = {
-            "model": "gpt-4",
+            "model": self.model,
             "messages": [
                 {"role": "system", "content": self._get_system_prompt()},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.3,
+            "temperature": LLM_TEMPERATURE,
             "max_tokens": 2000
         }
 
         try:
             logger.info(f"Llamando a LLM API: {self.base_url}/chat/completions")
+            logger.info(f"Model: {self.model}, Temperature: {payload['temperature']}")
             logger.info(f"API Key presente: {bool(self.api_key)}, Longitud: {len(self.api_key) if self.api_key else 0}")
             
             response = requests.post(
