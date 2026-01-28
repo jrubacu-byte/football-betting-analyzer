@@ -54,14 +54,24 @@ async def analyze_match(request: AnalysisRequest):
         # PASO 3: Calcular probabilidades con Poisson
         probs = betting_engine.get_poisson_probs(exp_goals_home, exp_goals_away)
 
-        # PASO 4: Calcular cuotas justas
+        # PASO 4: Calcular cuotas justas (con validación para evitar división por cero)
+        MIN_PROB = 0.001  # Probabilidad mínima para evitar división por cero
+        
+        def safe_fair_odds(prob: float) -> float:
+            """Calcula cuota justa evitando división por cero"""
+            if prob is None or prob <= 0:
+                return 999.99  # Cuota máxima si la probabilidad es 0
+            return round(1 / max(prob, MIN_PROB), 2)
+        
         fair_odds = {
-            "1": 1 / probs["1"],
-            "X": 1 / probs["X"],
-            "2": 1 / probs["2"],
-            "over_2.5": 1 / probs["over_2.5"],
-            "btts": 1 / probs["btts_yes"]
+            "1": safe_fair_odds(probs.get("1", 0)),
+            "X": safe_fair_odds(probs.get("X", 0)),
+            "2": safe_fair_odds(probs.get("2", 0)),
+            "over_2.5": safe_fair_odds(probs.get("over_2.5", 0)),
+            "btts": safe_fair_odds(probs.get("btts_yes", 0))
         }
+        
+        logger.info(f"Probabilidades calculadas: 1={probs.get('1', 0):.4f}, X={probs.get('X', 0):.4f}, 2={probs.get('2', 0):.4f}")
 
         # PASO 5: Calcular EV para cada mercado
         ev_analysis = {}
@@ -125,7 +135,7 @@ async def analyze_match(request: AnalysisRequest):
                 ev_percent=round(best_ev, 2),
                 stake_suggested=stake,
                 confidence=min(95, int(best_prob * 100)),
-                reasoning=f"EV positivo del {best_ev:.1f}%. Probabilidad real: {best_prob*100:.1f}% vs cuota que implica {1/best_odds*100:.1f}%"
+                reasoning=f"EV positivo del {best_ev:.1f}%. Probabilidad real: {best_prob*100:.1f}% vs cuota que implica {(1/best_odds*100 if best_odds > 0 else 0):.1f}%"
             )
         else:
             top_recommendation = BetRecommendation(
@@ -172,7 +182,7 @@ async def analyze_match(request: AnalysisRequest):
                     selection=sel,
                     odds=odds,
                     prob_real=round(prob, 4),
-                    fair_odds=round(1/prob, 2),
+                    fair_odds=safe_fair_odds(prob),
                     ev_percent=round(ev, 2),
                     stake_suggested=betting_engine.calculate_kelly_stake(prob, odds),
                     confidence=min(95, int(prob * 100)),
