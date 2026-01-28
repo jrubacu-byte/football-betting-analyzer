@@ -22,6 +22,7 @@ async def analyze_match(request: AnalysisRequest):
     try:
         # PASO 1: Obtener datos de la LLM (búsqueda web + parámetros λ)
         logger.info(f"Analizando: {request.match_name}")
+        logger.info(f"API Key configurada: {LLM_API_KEY is not None and len(LLM_API_KEY) > 0}")
         
         llm_response = llm_client.analyze_match(
             match_name=request.match_name,
@@ -35,8 +36,11 @@ async def analyze_match(request: AnalysisRequest):
                 "cards": request.odds.over_3_5_cards
             }
         )
+        
+        logger.info(f"Respuesta LLM recibida: {llm_response.keys() if isinstance(llm_response, dict) else type(llm_response)}")
 
         if "error" in llm_response:
+            logger.error(f"Error en respuesta LLM: {llm_response['error']}")
             raise HTTPException(status_code=500, detail=llm_response["error"])
 
         # PASO 2: Extraer parámetros λ de la respuesta LLM
@@ -205,8 +209,12 @@ async def analyze_match(request: AnalysisRequest):
         logger.info(f"Análisis completado: {request.match_name}")
         return response
 
+    except HTTPException:
+        # Re-raise HTTP exceptions without wrapping them
+        raise
     except Exception as e:
-        logger.error(f"Error en análisis: {str(e)}")
+        # Log the full traceback for debugging
+        logger.exception(f"Error en análisis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error en análisis: {str(e)}")
 
 @router.get("/ping")

@@ -1,6 +1,9 @@
 import requests
 import json
+import logging
 from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
 
 class LLMAnalysisClient:
     def __init__(self, api_key: str, base_url: str = "https://routellm.abacus.ai/v1"):
@@ -30,22 +33,44 @@ class LLMAnalysisClient:
         }
 
         try:
+            logger.info(f"Llamando a LLM API: {self.base_url}/chat/completions")
+            logger.info(f"API Key presente: {bool(self.api_key)}, Longitud: {len(self.api_key) if self.api_key else 0}")
+            
             response = requests.post(
                 f"{self.base_url}/chat/completions",
                 headers=self.headers,
                 json=payload,
                 timeout=30
             )
+            
+            logger.info(f"Respuesta HTTP Status: {response.status_code}")
+            
+            # Log response body for debugging if error
+            if response.status_code != 200:
+                logger.error(f"Respuesta error: {response.text}")
+            
             response.raise_for_status()
             
             result = response.json()
+            logger.info(f"Respuesta JSON recibida con {len(result.get('choices', []))} choices")
+            
             analysis_text = result["choices"][0]["message"]["content"]
+            logger.info(f"Texto de análisis recibido (primeros 200 chars): {analysis_text[:200]}")
             
             # Parsear JSON de la respuesta
-            return self._parse_analysis(analysis_text)
+            parsed = self._parse_analysis(analysis_text)
+            logger.info(f"JSON parseado exitosamente: {list(parsed.keys()) if isinstance(parsed, dict) else 'No dict'}")
+            return parsed
         
         except requests.exceptions.RequestException as e:
+            logger.exception(f"Error en llamada a LLM API: {str(e)}")
             return {"error": f"LLM API Error: {str(e)}"}
+        except (KeyError, IndexError) as e:
+            logger.exception(f"Error parseando respuesta de LLM: {str(e)}")
+            return {"error": f"Error parseando respuesta: {str(e)}"}
+        except Exception as e:
+            logger.exception(f"Error inesperado en analyze_match: {str(e)}")
+            return {"error": f"Error inesperado: {str(e)}"}
 
     def _build_analysis_prompt(self, match_name: str, user_odds: Dict[str, float]) -> str:
         odds_str = "\n".join([f"  {k}: {v}" for k, v in user_odds.items()])
@@ -90,7 +115,13 @@ FORMATO JSON OBLIGATORIO:
             end = text.rfind('}') + 1
             if start != -1 and end > start:
                 json_str = text[start:end]
-                return json.loads(json_str)
-        except json.JSONDecodeError:
-            pass
-        return {"error": "No se pudo parsear la respuesta de la LLM"}
+                logger.info(f"JSON extraído para parsear (primeros 300 chars): {json_str[:300]}")
+                parsed = json.loads(json_str)
+                return parsed
+            else:
+                logger.error(f"No se encontró JSON en la respuesta. Texto completo: {text}")
+                return {"error": "No se encontró JSON en la respuesta de la LLM"}
+        except json.JSONDecodeError as e:
+            logger.exception(f"Error decodificando JSON: {str(e)}")
+            logger.error(f"Texto que causó el error: {text}")
+            return {"error": f"No se pudo parsear la respuesta de la LLM: {str(e)}"}
