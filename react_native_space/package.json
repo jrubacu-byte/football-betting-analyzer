@@ -1,5 +1,7 @@
 {
   "name": "react_native_expo",
+  "version": "1.0.0",
+  "main": "index.ts",
   "private": true,
   "scripts": {
     "start": "expo start",
