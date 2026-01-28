@@ -93,3 +93,4 @@ logs
 
 # Ensure only package-lock.json is used
 yarn.lock
+.yarn/
